@@ -1,48 +1,63 @@
 import axios from 'axios';
 import { useState } from 'react';
-// users need to be able to search for pokemon by ID (number)
-// need a search bar
-// search bar will need a button to click (to execute the search)
-// onClick of the button will make an API request to pokeAPI
-// second component DisplayPokemon - pass data from API as props to DisplayPokemon Component
+import Pokemon from './Pokemon';
 
-// TOMORROW - PUT ON GITHUB
-// CLONE TO KENS MACHINE
-// NEXT COMPONENT
+const minPokemonId = 1;
+const maxPokemonId = 151;
 
 function SearchPokemon() {
-    const [pokemonId, setPokemonId] = useState('');
+  const [pokemonId, setPokemonId] = useState('');
+  const [pokemonData, setPokemonData] = useState(null);
 
-    function handlePokemonIdUpdate(event) {
-        setPokemonId(event.target.value)
+  // updating our local state
+  function handlePokemonIdUpdate(event) {
+    setPokemonId(event.target.value);
+  }
+
+  async function handleFetchPokemon() {
+    // early return - think to yourself, what COULD a user potentially do? and code for it
+    if (pokemonId < minPokemonId || pokemonId > maxPokemonId || pokemonId % 1) {
+      alert(
+        `You must enter a whole number between ${minPokemonId} and ${maxPokemonId}`
+      );
+      setPokemonId('');
+      return;
     }
 
-    async function handleFetchPokemon() {
-        if (pokemonId < 1 || pokemonId > 151 || pokemonId % 1) {
-            alert('You must enter a whole number between 1 and 151');
-            setPokemonId('');
-            return;
-        }
+    const baseUrl = 'https://pokeapi.co/api/v2/pokemon/';
 
-        const baseUrl = "https://pokeapi.co/api/v2/pokemon/";
-
-        try {
-            // make request
-            const pokemonData = await axios.get(baseUrl + pokemonId);
-            console.log(pokemonData);
-        } catch (error) {
-            // handle error
-            alert('An unknown error has occurred');
-        }
+    // we need to use async/await and a try/catch block
+    // we do not know if OR when our request will come back
+    // we need to wait for the results (using await), or handle any errors in the catch block
+    try {
+      // make request
+      const response = await axios.get(baseUrl + pokemonId);
+      setPokemonData(response.data);
+    } catch (error) {
+      // handle error
+      alert('An unknown error has occurred');
     }
+  }
 
-    return (
-        <div>
-            <h1>Search for an original Pokemon!</h1>
-            <input min="1" max="151" name="searchPokemon" type="number" value={pokemonId} onChange={(e) => handlePokemonIdUpdate(e)} />
-            <button onClick={handleFetchPokemon}>Search</button>
-        </div>
-    )
+  return (
+    <div>
+      <h1>Search for an Pokemon!</h1>
+      <input
+        min={minPokemonId}
+        max={maxPokemonId}
+        name='searchPokemon'
+        type='number'
+        value={pokemonId}
+        onChange={(e) => handlePokemonIdUpdate(e)}
+      />
+      <button onClick={handleFetchPokemon}>Search</button>
+
+      <div className='mt-4'>
+        {/* making sure we have our pokemon data BEFORE we attempt to render the Pokemon component */}
+        {pokemonData && <Pokemon data={pokemonData} />}
+      </div>
+    </div>
+  );
 }
 
 export default SearchPokemon;

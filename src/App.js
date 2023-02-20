@@ -1,10 +1,8 @@
 import './App.css';
-import SearchPokemon from './components/SearchPokemon'
+import SearchPokemon from './components/SearchPokemon';
 
 function App() {
-  return (
-    <SearchPokemon />
-  );
+  return <SearchPokemon />;
 }
 
 export default App;
